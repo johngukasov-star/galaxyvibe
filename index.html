@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galaxy Bird - Vibe Music Edition</title>
+    <!-- Подключаем библиотеку Adsgram -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -147,6 +149,9 @@
     </div>
 
     <script>
+        // Настройка рекламы Adsgram
+        const AdController = window.Adsgram.init({ blockId: "35654" });
+
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const mainMenu = document.getElementById('main-menu');
@@ -181,7 +186,6 @@
             stars = [];
             nebulaClouds = [];
             
-            // Background cosmic dust clouds
             for (let i = 0; i < 5; i++) {
                 nebulaClouds.push({
                     x: Math.random() * canvas.width,
@@ -192,7 +196,6 @@
                 });
             }
 
-            // Distant rhythmic stars
             for (let i = 0; i < 70; i++) {
                 stars.push({
                     x: Math.random() * canvas.width,
@@ -361,7 +364,6 @@
         }
 
         function drawBackground() {
-            // Smooth, evolving ambient gradient core
             let pulse = Math.sin(Date.now() * 0.001) * 0.05;
             let bgGrad = ctx.createRadialGradient(
                 canvas.width / 2, canvas.height / 2, 10,
@@ -373,7 +375,6 @@
             ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Render Nebula clouds
             nebulaClouds.forEach(cloud => {
                 ctx.fillStyle = cloud.color;
                 ctx.beginPath();
@@ -386,7 +387,6 @@
                 }
             });
 
-            // Render Pulsing stars
             stars.forEach(star => {
                 star.phase += star.pulseSpeed;
                 let alpha = 0.3 + Math.abs(Math.sin(star.phase)) * 0.7;
@@ -508,10 +508,24 @@
             gameState = 'READY';
         }
 
+        // Вызов показа рекламы при завершении игры
         function endGame() {
             gameState = 'GAMEOVER';
             cancelAnimationFrame(animationFrameId);
             multiplierBadge.style.display = 'none';
+            
+            // Запускаем рекламу Adsgram
+            AdController.show().then(() => {
+                // Вызовется, если реклама показана успешно
+                showGameOverScreen();
+            }).catch((err) => {
+                // Вызовется, если реклама не загрузилась или произошла ошибка
+                console.log("Ad error or skipped:", err);
+                showGameOverScreen();
+            });
+        }
+
+        function showGameOverScreen() {
             finalScore.innerText = "Score: " + score;
             gameOverScreen.classList.remove('hide');
         }
